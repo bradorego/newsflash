@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>News Flash</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <link href="css/ionic.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="js/ionic.bundle.min.js"></script>
+    <script src="js/ionic.cards.js"></script>
+    <script src="js/app2.js"></script>
+  </head>
+  <body ng-app="cla">
+    <ion-nav-view>
+    </ion-nav-view>
+    <script id="layout.html" type="text/ng-template">
+      <ion-side-menus>
+        <ion-side-menu-content drag-content="false">
+          <ion-nav-bar class="bar-positive">
+            <ion-nav-buttons side="left">
+              <button class="button button-icon button-clear ion-navicon-round" menu-toggle="left">
+              </button>
+            </ion-nav-buttons>
+            <ion-nav-buttons side="right">
+              <button class="button button-icon button-clear ion-navicon-round" menu-toggle="right">
+              </button>
+            </ion-nav-buttons>
+          </ion-nav-bar>
+          <ion-nav-view name="centerContent"></ion-nav-view>
+        </ion-side-menu-content>
+        <ion-side-menu side="left">
+          <ion-content scroll="false">
+            <ul class="list">
+              <a href="#/app/home" class="item" menu-close>
+                <i class="ion-home"></i>
+                <span>Home</span>
+              </a>
+              <a href="#/app/settings" class="item" menu-close>
+                <i class="ion-gear-b"></i>
+                <span>Settings</span>
+              </a>
+            </ul>
+          </ion-content>
+        </ion-side-menu>
+        <ion-side-menu side="right">
+          <ion-nav-bar>Yes List</ion-nav-bar>
+          <ion-content>
+            <ul class="list">
+              <a ng-repeat="story in accepted" href="{{story.link}}" target="_blank" class="item" menu-close>
+                <span>{{story.title}}</span>
+              </a>
+            </ul>
+          </ion-content>
+        </ion-side-menu>
+      </ion-side-menus>
+    </script>
+    <script id="home.html" type="text/ng-template">
+      <ion-view title="Home">
+        <ion-content padding="true" scroll="false">
+          <pane ng-controller="CardsCtrl">
+            <swipe-cards>
+              <swipe-card ng-repeat="card in cards" on-destroy="cardDestroyed($index)" on-swipe="cardSwiped($index)">
+                <div ng-controller="CardCtrl">
+                  <h1 class="title">
+                    {{card.title}}
+                  </h1>
+                  <div class="image">
+                    <img ng-src="{{card.mediaGroups[0].contents[0].thumbnails[0].url | filter: 'html'}}">
+                  </div>
+                  <div class="summary">
+                    {{card.contentSnippet}}
+                  </div>
+                  <div class="button-bar">
+                    <button class="button button-clear button-positive" ng-click="reject()">Skip</button>
+                    <button class="button button-clear button-positive" ng-click="accept()">Save</button>
+                  </div>
+                </div>
+              </swipe-card>
+            </swipe-cards>
+          </pane>
+        </ion-content>
+      </ion-view>
+    </script>
+    <script id="settings.html" type="text/ng-template">
+      <ion-view title="Settings">
+        <ion-content padding="true">
+          <ul class="list">
+            <li class="item item-divider">Feeds</li>
+            <li ng-repeat="feed in feeds" class="item">{{feed}} <button class="button button-right button-inline button-icon ion-remove" ng-click="removeFeed(feed)">Remove</button></li>
+            <form ng-submit="addFeed(newFeed)" class="form form-inline">
+              <li class="item"><input type="url" placeholder="Enter new feed URL" ng-model="newFeed" /> <button class="button">Submit</button> </li>
+            </form>
+          </ul>
+          <a href="#/" class="item" menu-close ng-click="signOut()">
+            <i class="ion-log-out"></i>
+            <span>Log Out</span>
+          </a>
+        </ion-content>
+      </ion-view>
+    </script>
+    <script id="login.html" type="text/ng-template">
+      <ion-view>
+        <ion-header-bar align-title="center" class="bar-positive">
+          <h1 class="title">NewsFlash</h1>
+        </ion-header-bar>
+        <ion-content class="has-header">
+          <h4>Please sign in to continue</h4>
+          <form name="signInForm" class="list list-inset" ng-submit="signIn(user)">
+            <label class="item item-input">
+              <span class="input-label col col-33">Username</span>
+              <input type="text" required ng-model="user.email" placeholder="e.g. first.lastname"/>
+            </label>
+            <label class="item item-input">
+              <span class="input-label col col-33">Password</span>
+              <input type="password" required ng-model="user.pass" placeholder="Password"/>
+            </label>
+            <div class="padding">
+              <button type="submit" ng-disabled="signInForm.$invalid" class="button button-block button-positive">Log In</button>
+            </div>
+            <a href="mailto:contact@cleanlakes.org?subject=Clean%20Lakes%20App" class="item" id="loginHelp">Need Help?</a>
+          </form>
+          <button class="button button-block button-assertive" ng-click="override()">Override</button>
+        </ion-content>
+      </ion-view>
+    </script>
+  </body>
+</html>

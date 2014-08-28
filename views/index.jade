@@ -1,0 +1,81 @@
+extends layout
+
+block content
+  ion-nav-view
+  script(id='layout.html', type='text/ng-template')
+    ion-side-menus
+      ion-side-menu-content(drag-content="false")
+        ion-nav-bar.bar-positive
+          ion-nav-buttons(side="left")
+            button.button.button-icon.button-clear.ion-navicon-round(menu-toggle="left")
+          ion-nav-buttons(side="right")
+            button.button.button-icon.button-clear.ion-star(menu-toggle="right")
+        ion-nav-view(name="centerContent")
+      ion-side-menu(side="left")
+        ion-content(scroll="false")
+          ul.list
+            a.item(href="#/app/home", menu-close)
+              i.ion-home
+              span &nbsp;Home
+            a.item(href="#/app/settings", menu-close)
+              i.ion-gear-b
+              span &nbsp;Settings
+      ion-side-menu(side="right")
+        ion-nav-bar Yes List
+        ion-content
+          ul.list
+            a.item(ng-repeat="story in accepted", href="{{story.link}}", target="_blank", menu-close)
+              span {{story.title}}
+  script(id='home.html', type="text/ng-template")
+    ion-view(title='Home')
+    ion-content(padding='true', scroll='false')
+      pane(ng-controller='CardsCtrl')
+        swipe-cards
+          swipe-card(ng-repeat='card in cards', on-destroy='cardDestroyed($index)', on-swipe='cardSwiped($index)')
+            div(ng-controller='CardCtrl')
+              h1.title
+                | {{card.title}}
+              h6
+                | {{card.date}} - {{card.source}}
+              .image
+                img(ng-src='{{card.image | filter: \'html\'}}')
+              .summary(ng-bind-html="card.summary")
+              .button-bar.bar-positive
+                button.button.icon-left.ion-ios7-trash(ng-click='reject()', style="margin-right:1px;") Skip
+                button.button.icon-left.ion-bookmark(ng-click='accept()') Save
+  script(id='settings.html', type="text/ng-template")
+    ion-view(title='Settings')
+    ion-content(padding='true')
+        ul.list
+          li.item.item-divider Feeds
+          li.item(ng-repeat='feed in feeds')
+            | {{feed}}
+            button.button.button-right.button-inline.button-icon.ion-remove(ng-click='removeFeed(feed)') Remove
+          form.form.form-inline(ng-submit='addFeed(newFeed)')
+            li.item
+              input(type='url', placeholder='Enter new feed URL', ng-model='newFeed')
+              button.button Submit
+        a.item(href='#/', menu-close='menu-close', ng-click='signOut()')
+          i.ion-log-out
+          span Log Out
+  script(id='login.html', type="text/ng-template")
+    ion-view
+      ion-header-bar.bar-positive(align-title='center')
+          h1.title NewsFlash
+        ion-content.has-header
+          h4 Please sign in to continue
+          form.list.list-inset(name='signInForm', ng-submit='signIn(user)')
+            label.item.item-input
+              span.input-label.col.col-33 Email
+              input(type='text', required='required', ng-model='user.email', placeholder='test@example.com')
+            label.item.item-input
+              span.input-label.col.col-33 Password
+              input(type='password', required='required', ng-model='user.pass', placeholder='Password')
+            .padding
+              button.button.button-block.button-positive(type='submit', ng-disabled='signInForm.$invalid') Log In
+            a#loginHelp.item(href='mailto:newsflashnewsapp@gmail.com?subject=Help!') Need Help?
+          button.button.button-block.button-assertive(ng-click='override()') Override
+          i.ion-home.preload
+
+
+
