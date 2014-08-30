@@ -33,7 +33,6 @@ userRouter.route('/')
   .put(function (req, res) {
     var ts = +new Date();
     UserModel.findOne({'email': req.body.email}, function (err, user) {
-      console.log('BODY',req.body);
       if (err) {
         res.end(err);
       } else if (user && (user.password === crypto.createHash('sha1').update(req.body.password).digest('hex'))) {
@@ -104,6 +103,7 @@ userRouter.route('/:id/stories')
     UserModel.findById(req.body._id, function (err, user) {
       var i = 0,
         j = 0,
+        k = 0,
         count = 0,
         currentStory = {},
         currentSource = "",
@@ -118,7 +118,7 @@ userRouter.route('/:id/stories')
         }, function (error, response, body) {
           count++;
           currentSource = body.responseData.feed.title;
-          for( j = 0; j < body.responseData.feed.entries.length; j++) {
+          for (j = 0; j < body.responseData.feed.entries.length; j++) {
             currentStory = body.responseData.feed.entries[j];
             currentImage = '';
             if (currentStory.mediaGroups && currentStory.mediaGroups[0].contents && currentStory.mediaGroups[0].contents[0].thumbnails) {
@@ -131,9 +131,13 @@ userRouter.route('/:id/stories')
               'summary': currentStory.contentSnippet,
               'date': new Date(currentStory.publishedDate).toDateString(),
               'source': currentSource
-            })
+            });
           }
           if (count === user.RSS_feeds.length) { // done!
+            /// TODO filter out stories they've seen?
+            // for (k = 0; k < stories.length; k++) {
+            ////// compare stories to seen, if title and source the same, remove it from stories
+            // }
             stories = stories.sort(function (a,b) {return 0.5 - Math.random();}); // randomize!
             res.json(stories);
           }
@@ -143,10 +147,20 @@ userRouter.route('/:id/stories')
   });
 
 userRouter.route('/:id/liked')
+  .get(function (req, res) {
+    UserModel.findById(req.body._id, function (err, user) {
+      if (err) {
+        res.send(err);
+      } else {
+        res.json(user.liked);
+      }
+    });
+  })
   .post(function (req, res) {
+    console.log(req.body);
     var story = {
       'title': req.body.title,
-      'url': req.body.url,
+      'link': req.body.link,
       'source': req.body.source,
       'image': req.body.image,
       'date': req.body.date
@@ -169,7 +183,7 @@ userRouter.route('/:id/disliked')
   .post(function (req, res) {
     var story = {
       'title': req.body.title,
-      'url': req.body.url,
+      'link': req.body.link,
       'source': req.body.source,
       'image': req.body.image,
       'date': req.body.date

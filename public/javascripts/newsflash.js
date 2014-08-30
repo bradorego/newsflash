@@ -40,7 +40,7 @@ function deleteCookie(name) {
   }
 }
 
-var app = angular.module('newsflash', ['ionic','ionic.contrib.ui.cards']);
+var app = angular.module('Newsflash', ['ionic','ionic.contrib.ui.cards']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider.state('app', {
@@ -85,7 +85,7 @@ app.directive('noScroll', function($document) {
   }
 })
 
-app.factory('news', ['$http', function ($http) {
+app.factory('News', ['$http', function ($http) {
   var init = function () {
     return $http({
       'method':'get',
@@ -107,25 +107,49 @@ app.factory('news', ['$http', function ($http) {
     }
   };
 }]);
-app.service('Auth', ['$http', function ($http) {
+app.service('User', ['$http', function ($http) {
     var signIn = function (email, password) {
-      return $http({
-        'method': 'put',
-        'url': '/api/v1/users',
-        'data': {
-          'email': email,
-          'password': password
-        }
-      })
-    };
+        return $http({
+          'method': 'put',
+          'url': '/api/v1/users',
+          'data': {
+            'email': email,
+            'password': password
+          }
+        });
+      },
+      cardSaved = function (user, card) {
+        return $http({
+          'method': 'post',
+          'url': '/api/v1/users/' + user._id + '/liked',
+          'data': {
+            'card': card
+          }
+        });
+      },
+      cardPassed = function (user, card) {
+        return $http({
+          'method': 'post',
+          'url': '/api/v1/users/' + user._id + '/disliked',
+          'data': {
+            'card': card
+          }
+        });
+      };
     return {
       'signIn': function (email, pass) {
         return signIn(email, pass);
+      },
+      'cardSaved' : function (user, card) {
+        return cardSaved(user, card);
+      },
+      'cardPassed' : function (user, card) {
+        return cardPassed(user, card);
       }
     }
   }]);
 
-app.run(function ($rootScope, $state, $window, news) {
+app.run(function ($rootScope, $state, $window, $http) {
   createCookie('nf_auth', 'YnJhZGxleS5vcmVnbytuZjJAZ21haWwuY29tOlRlc3RXb3Jk', 30);
   $rootScope.accepted = [];
   $rootScope.rejected = 0;
@@ -135,16 +159,34 @@ app.run(function ($rootScope, $state, $window, news) {
     deleteCookie('nf_auth');
     $state.go('login');
   }
-  news.init().success(function (data, status, headers) {
-    $rootScope.storyList = data;
-    $rootScope.activeCard = $rootScope.storyList[0];
-  });
   $rootScope.goBack = function () {
     $window.history.back();
   }
+  $rootScope.savedStory = function (user, card) {
+    $http({
+      'method': 'post',
+      'url': '/api/v1/users/' + user._id + '/liked',
+      'data': card
+    }).success(function (data, status, headers) {
+      console.log(data);
+    }).error(function (data, status, headers) {
+      console.log(data);
+    });
+  }
+  $rootScope.viewedStory = function (user, card) {
+    $http({
+      'method': 'post',
+      'url': '/api/v1/users/' + user._id + '/disliked',
+      'data': card
+    }).success(function (data, status, headers) {
+      console.log(data);
+    }).error(function (data, status, headers) {
+      console.log(data);
+    });
+  }
 });
 
-app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, news) {
+app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, News, User) {
   if (!$scope.user) {
     $state.go('login');
     return false;
@@ -160,8 +202,10 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, ne
   $scope.cardDestroyed = function(index) {
     if (this.swipeCard.positive === true) { /// trigger positive result
       $scope.$root.accepted.push($scope.previousCard);
+      User.savedStory($scope.user, $scope.previousCard).exec();
     } else { /// trigger negative
       $scope.$root.rejected++;
+      User.viewedStory($scope.user, $scope.previousCard).exec();
     }
     $scope.cards.splice(index, 1);
   };
@@ -169,7 +213,7 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, ne
   $scope.addCard = function() {
     var newCard = $scope.storyList.pop();
     if ($scope.storyList.length === 0) {
-      news.loadMore().success(function (data, status, headers) {
+      News.loadMore($scope.user).success(function (data, status, headers) {
         $scope.$root.storyList = $scope.$root.storyList.concat(data);
         $scope.$root.activeCard = $scope.storyList[0];
       });
@@ -197,23 +241,26 @@ app.controller('AppCtrl', ['$scope', '$state', function ($scope, $state) {
   }
 }]);
 
-app.controller('HomeCtrl', ['$scope', function ($scope) {
-  /////TODO - implement/use getAllSites info ////
+app.controller('HomeCtrl', ['$scope', 'News', function ($scope, News) {
+  ///// TODO ??????
 }]);
 
-app.controller('LoginCtrl', ['$scope', '$state', 'Auth', 'news', function ($scope, $state, Auth, news) {
+app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scope, $state, User, News) {
   $scope.$on('internalerror', function(event, data) {
     $scope.error = data.message;
   });
 
   $scope.signIn = function (user) {
-    Auth.signIn(user.email, user.pass).success(function (data, status, headers) {
+    User.signIn(user.email, user.pass).success(function (data, status, headers) {
       /////// TODO TODO TODO TODO
       //// UPDATE CLIENT-SIDE AUTH STUFF TO USE ACTUAL AUTH AND NOT HARD-CODED DATA
-      //// UPDATE CLIENT TO PULL PREVIOUSLY LIKED ITEMS (BACKEND?)
       //// CREATE EMAIL LINK WITH LIST OF ARTICLES
       /////// TODO TODO TODO TODO
       $scope.$root.user = data;
+      News.init($scope.user).success(function (data, status, headers) {
+        $scope.$root.storyList = data;
+        $scope.$root.activeCard = $rootScope.storyList[0];
+      });
       $state.go('app.home');
     })
     .error(function (data, status, headers) {
@@ -222,8 +269,7 @@ app.controller('LoginCtrl', ['$scope', '$state', 'Auth', 'news', function ($scop
   }
   $scope.override = function () {
     $scope.$root.user = {
-      'name': 'lololol',
-      'isVolunteer': true
+      'name': 'lololol'
     };
     $state.go('app.home');
   }

@@ -21,10 +21,14 @@ block content
               i.ion-gear-b
               span &nbsp;Settings
       ion-side-menu(side="right")
-        ion-nav-bar Yes List
         ion-content
-          ul.list
+          ion-header-bar.bar-assertive
+            h1.title Yes List
+          ul.list.has-header
             a.item(ng-repeat="story in accepted", href="{{story.link}}", target="_blank", menu-close)
+              span {{story.title}}
+            .item.item-divider Previously Saved
+            a.item(ng-repeat="story in user.liked", href="{{story.link}}", target="_blank", menu-close)
               span {{story.title}}
   script(id='home.html', type="text/ng-template")
     ion-view(title='Home')
