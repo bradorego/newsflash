@@ -22,10 +22,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 var crypto = require('crypto');
 
 app.use(function (req, res, next) {
-    /////////// TODO TODO TODO TODO
-    ///// COOKIES VS HEADERS FOR AUTH
-    ///////
-    console.log(req.cookies.nf_auth);
     var auth = new Buffer(req.cookies.nf_auth, 'base64').toString('ascii').split(':');
     UserModel.findOne({'email': auth[0]}, function (err, user) {
       if (user.password === crypto.createHash('sha1').update(auth[1]).digest('hex')) {
