@@ -22,7 +22,7 @@ block content
               span &nbsp;Settings
       ion-side-menu(side="right")
         ion-content
-          ion-header-bar.bar-assertive
+          ion-header-bar.bar-balanced
             h1.title Yes List
           ul.list.has-header
             a.item(ng-repeat="story in accepted", href="{{story.link}}", target="_blank", menu-close)
@@ -53,15 +53,15 @@ block content
      ion-content(padding='true', ng-controller="SettingsCtrl")
         ul.list
           li.item.item-divider Feeds
-          li.item(ng-repeat='feed in feeds')
+          li.item.item-button-right(ng-repeat='feed in feeds')
             | {{feed}}
-            button.button.button-right.button-inline.button-icon.ion-remove(ng-click='removeFeed(feed)') Remove
+            button.button.button-assertive.ion-trash-a(ng-click='removeFeed(feed)')
           form.form(ng-submit='addFeed(newFeed)')
             li.item
               input(type='url', placeholder='Enter new feed URL', ng-model='newFeed')
-              button.button Submit
-        a.item(href='#/', menu-close='menu-close', ng-click='signOut()')
-          i.ion-log-out
+              button.button.button-block.button-positive Submit
+        a.item.item-dark.item-icon-left(href='#/', menu-close='menu-close', ng-click='signOut()')
+          i.icon.ion-log-out
           span Log Out
   script(id='login.html', type="text/ng-template")
     ion-view
