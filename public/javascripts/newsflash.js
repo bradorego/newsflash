@@ -142,16 +142,40 @@ app.service('User', ['$http', function ($http) {
           'card': card
         }
       });
+    },
+    addFeed = function (user, feed) {
+      return $http({
+        'method':'post',
+        'url': '/api/v1/users/' + user._id + '/feeds',
+        'data': {
+          'url': feed
+        }
+      });
+    },
+    removeFeed = function(user, feed) {
+      return $http({
+        'method':'put',
+        'url': '/api/v1/users/' + user._id + '/feeds',
+        'data': {
+          'url': feed
+        }
+      });
     };
   return {
     'signIn': function (email, pass) {
       return signIn(email, pass);
     },
-    'cardSaved' : function (user, card) {
+    'cardSaved': function (user, card) {
       return cardSaved(user, card);
     },
-    'cardPassed' : function (user, card) {
+    'cardPassed': function (user, card) {
       return cardPassed(user, card);
+    },
+    'addFeed': function (user, feed) {
+      return addFeed(user, feed);
+    },
+    'removeFeed': function (user, feed) {
+      return removeFeed(user, feed);
     }
   }
 }]);
@@ -263,23 +287,27 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
 }]);
 
 
-app.controller('SettingsCtrl', ['$scope', '$state', function ($scope, $state) {
+app.controller('SettingsCtrl', ['$scope', '$state', 'User', function ($scope, $state, User) {
   if (!$scope.user) {
     $state.go('login');
     return;
   }
   $scope.feeds = $scope.user.RSS_feeds;
   $scope.addFeed = function (url) {
-    $scope.feeds.push(url);
-    $scope.newFeed = '';
-  }
+    User.addFeed($scope.user, url).success(function (data, status, headers) {
+      $scope.feeds.push(url);
+      $scope.newFeed = '';
+    });
+  };
   $scope.removeFeed = function (feed) {
-    for (var i = 0 ; i < $scope.feeds.length; i++) {
-      if ($scope.feeds[i] === feed) {
-        $scope.feeds.splice(i,1);
-        return true;
+    User.removeFeed($scope.user, feed).success(function (data, status, headers) {
+      for (var i = 0 ; i < $scope.feeds.length; i++) {
+        if ($scope.feeds[i] === feed) {
+          $scope.feeds.splice(i,1);
+          return true;
+        }
       }
-    }
-  }
+    });
+  };
 }]);
 

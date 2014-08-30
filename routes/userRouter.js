@@ -85,7 +85,7 @@ userRouter.route('/:id/feeds')
       });
     });
   })
-  .delete(function (req, res) {
+  .put(function (req, res) {
     UserModel.findById(req.body._id, function (err, user) {
       UserModel.update({'_id':req.params.id}, {'$pull': {'RSS_feeds': req.body.url}}, function (err, numAffected, raw) {
         if (err) {
