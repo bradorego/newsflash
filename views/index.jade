@@ -34,6 +34,7 @@ block content
     ion-view(title='Home')
     ion-content(padding='true', scroll='false')
       pane(ng-controller='CardsCtrl')
+        .ion-loading-c.nfLoading(ng-hide="cards")
         swipe-cards
           swipe-card(ng-repeat='card in cards', on-destroy='cardDestroyed($index)', on-swipe='cardSwiped($index)')
             div(ng-controller='CardCtrl')
@@ -49,13 +50,13 @@ block content
                 button.button.icon-left.ion-bookmark(ng-click='accept()') Save
   script(id='settings.html', type="text/ng-template")
     ion-view(title='Settings')
-    ion-content(padding='true')
+     ion-content(padding='true', ng-controller="SettingsCtrl")
         ul.list
           li.item.item-divider Feeds
           li.item(ng-repeat='feed in feeds')
             | {{feed}}
             button.button.button-right.button-inline.button-icon.ion-remove(ng-click='removeFeed(feed)') Remove
-          form.form.form-inline(ng-submit='addFeed(newFeed)')
+          form.form(ng-submit='addFeed(newFeed)')
             li.item
               input(type='url', placeholder='Enter new feed URL', ng-model='newFeed')
               button.button Submit

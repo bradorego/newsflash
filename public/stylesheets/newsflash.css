@@ -8,8 +8,10 @@
 .col-100 {
 	max-width: 100%;
 }
-.claLoad {
-	margin: 15px auto;
+.nfLoading {
+  display: block;
+  text-align: center;
+  margin: 15px auto;
 	font-size: 42px;
 }
 #loginHelp {

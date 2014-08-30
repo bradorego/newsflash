@@ -40,7 +40,7 @@ function deleteCookie(name) {
   }
 }
 
-var app = angular.module('Newsflash', ['ionic','ionic.contrib.ui.cards']);
+var app = angular.module('newsflash', ['ionic','ionic.contrib.ui.cards']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider.state('app', {
@@ -86,15 +86,31 @@ app.directive('noScroll', function($document) {
 })
 
 app.factory('News', ['$http', function ($http) {
-  var init = function (user) {
-    return $http({
-      'method':'get',
-      'url': '/api/v1/users/' + user._id + '/stories'
-    });
-  };
+  var stories = [],
+    init = function (user) {
+      $http({
+        'method':'get',
+        'url': '/api/v1/users/' + user._id + '/stories'
+      }).success(function (data, status, headers) {
+        stories = data;
+      });
+      return $http({
+        'method':'get',
+        'url': '/api/v1/users/' + user._id + '/stories'
+      });
+    },
+    pop = function () {
+      return stories.pop();
+    };
   return {
     'init': function (user) {
       return init(user);
+    },
+    'data': function() {
+      return stories;
+    },
+    'pop': function () {
+      return pop();
     }
   };
 }]);
@@ -154,13 +170,23 @@ app.run(function ($rootScope, $state, $window) {
   }
 });
 
-app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, User) {
+app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, User, News, $timeout) {
   if (!$scope.user) {
     $state.go('login');
     return false;
   }
-
-  $scope.cards = Array.prototype.slice.call($scope.storyList, 0, 1);
+  var data = News.data();
+  if (data.length !== 0) {
+    $timeout(function () {
+      $scope.cards = Array.prototype.slice.call(News.data(), 0, 1)
+    }, 500);
+  } else {
+    News.init($scope.user).success(function (data, status, headers) {
+      $scope.$root.storyList = data;
+      $scope.$root.activeCard = $scope.storyList[0];
+      $scope.cards = Array.prototype.slice.call(News.data(), 0, 1)
+    });
+  }
 
   $scope.cardSwiped = function(index) {
     $scope.previousCard = $scope.activeCard;
@@ -179,7 +205,8 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
   };
 
   $scope.addCard = function() {
-    var newCard = $scope.storyList.pop();
+    var newCard = News.pop();
+    console.log(News.data().length);
     if ($scope.storyList.length === 0) {
       $scope.empty = true;
     }
@@ -188,7 +215,7 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
   }
 })
 
-.controller('CardCtrl', function($scope, $ionicSwipeCardDelegate, $rootScope) {
+.controller('CardCtrl', function($scope, $ionicSwipeCardDelegate) {
   $scope.accept = function () {
     var card = $ionicSwipeCardDelegate.getSwipebleCard($scope);
     card.swipe(true);
@@ -214,6 +241,10 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
   $scope.$on('internalerror', function(event, data) {
     $scope.error = data.message;
   });
+  $scope.user = {
+    'email':"bradley.orego+nf2@gmail.com",
+    'pass':"TestWord"
+  };
 
   $scope.signIn = function (user) {
     User.signIn(user.email, user.pass).success(function (data, status, headers) {
@@ -223,10 +254,6 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
       /////// TODO TODO TODO TODO
       createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
       $scope.$root.user = data;
-      News.init($scope.user).success(function (data, status, headers) {
-        $scope.$root.storyList = data;
-        $scope.$root.activeCard = $rootScope.storyList[0];
-      });
       $state.go('app.home');
     })
     .error(function (data, status, headers) {
@@ -241,7 +268,7 @@ app.controller('SettingsCtrl', ['$scope', '$state', function ($scope, $state) {
     $state.go('login');
     return;
   }
-  $scope.feeds = [];
+  $scope.feeds = $scope.user.RSS_feeds;
   $scope.addFeed = function (url) {
     $scope.feeds.push(url);
     $scope.newFeed = '';
