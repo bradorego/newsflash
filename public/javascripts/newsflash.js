@@ -21,7 +21,6 @@ function createCookie(name, value, days) {
   try {
       var expires = "";
       if (days !== 0) {
-          now = new Date();
           var exdate = new Date();
           exdate.setDate(exdate.getDate() + days);
           expires = "; expires=" + exdate.toUTCString();
@@ -32,11 +31,12 @@ function createCookie(name, value, days) {
   }
 }
 function deleteCookie(name) {
+  var now = new Date();
   try {
     now.setDate(0);
     document.cookie = name + "=''" + "; expires=" + now.toGMTString() + "; path=/";
   } catch (ex) {
-    catchError(ex);
+    console.log(ex);
   }
 }
 
@@ -62,6 +62,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
     'url':'/login',
     'templateUrl': 'login.html',
     'controller': 'LoginCtrl'
+  })
+  .state('signUp', {
+    'url':'/signUp',
+    'templateUrl': 'signUp.html',
+    'controller': 'SignUpCtrl'
   })
   .state('app.settings', {
     'url': '/settings',
@@ -108,6 +113,10 @@ app.factory('News', ['$http', function ($http) {
     },
     'data': function() {
       return stories;
+    },
+    'clear': function() {
+      stories = [];
+      return true;
     },
     'pop': function () {
       return pop();
@@ -156,6 +165,16 @@ app.service('User', ['$http', function ($http) {
           'url': feed
         }
       });
+    },
+    signUp = function (email, password) {
+      return $http({
+        'method': 'post',
+        'url': '/api/v1/users',
+        'data': {
+          'email': email,
+          'password': password
+        }
+      });
     };
   return {
     'signIn': function (email, pass) {
@@ -172,25 +191,36 @@ app.service('User', ['$http', function ($http) {
     },
     'removeFeed': function (user, feed) {
       return removeFeed(user, feed);
+    },
+    'signUp': function (email, pass) {
+      return signUp(email, pass);
     }
   }
 }]);
 
-app.run(function ($rootScope, $state, $window) {
+app.run(function ($rootScope, $state, $window, News) {
   $rootScope.accepted = [];
-  $rootScope.rejected = 0;
   $rootScope.previousCard = {};
   $rootScope.signOut = function() {
-    $rootScope.user = '';
+    $rootScope.user = null;
+    News.clear();
+    $rootScope.accepted = [];
     deleteCookie('nf_auth');
     $state.go('login');
   }
-  $rootScope.goBack = function () {
-    $window.history.back();
+  $rootScope.exportStories = function() {
+    var URL = "mailto:?subject=Stories from NewsFlash&body=",
+      body = '',
+      i = 0;
+    for (i = 0; i < $rootScope.accepted.length; i++) {
+      body += $rootScope.accepted[i].title + ' - ' + $rootScope.accepted[i].link + '\n';
+    }
+    $window.location = URL + body;
   }
 });
 
 app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, User, News, $timeout) {
+  $scope.loading = true;
   if (!$scope.user) {
     $state.go('login');
     return false;
@@ -198,13 +228,15 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
   var data = News.data();
   if (data.length !== 0) {
     $timeout(function () {
-      $scope.cards = Array.prototype.slice.call(News.data(), 0, 1)
+      $scope.cards = Array.prototype.slice.call(News.data(), 0, 1);
+      $scope.loading = false;
     }, 500);
   } else {
     News.init($scope.user).success(function (data, status, headers) {
       $scope.$root.storyList = data;
       $scope.$root.activeCard = Array.prototype.slice.call(News.data(), 0, 1)[0];
       $scope.cards = Array.prototype.slice.call(News.data(), 0, 1);
+      $scope.loading = false;
     });
   }
 
@@ -218,7 +250,6 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
       $scope.$root.accepted.push($scope.previousCard);
       User.cardSaved($scope.user, $scope.previousCard).then();
     } else { /// trigger negative
-      $scope.$root.rejected++;
       User.cardPassed($scope.user, $scope.previousCard).then();
     }
     $scope.cards.splice(index, 1);
@@ -257,20 +288,13 @@ app.controller('HomeCtrl', ['$scope', function ($scope) {
 }]);
 
 app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scope, $state, User, News) {
-  $scope.$on('internalerror', function(event, data) {
-    $scope.error = data.message;
-  });
+  $scope.signOut();
   $scope.user = {
-    'email':"bradley.orego+nf2@gmail.com",
+    'email':"bradley.orego+nf5@gmail.com",
     'pass':"TestWord"
   };
-
   $scope.signIn = function (user) {
     User.signIn(user.email, user.pass).success(function (data, status, headers) {
-      /////// TODO TODO TODO TODO
-      //// CREATE EMAIL LINK WITH LIST OF ARTICLES
-      //// SETTINGS
-      /////// TODO TODO TODO TODO
       createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
       $scope.$root.user = data;
       $state.go('app.home');
@@ -281,6 +305,18 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
   };
 }]);
 
+app.controller('SignUpCtrl', ['$scope', '$state', 'User', 'News', function ($scope, $state, User, News) {
+  $scope.signUp = function (user) {
+    User.signUp(user.email, user.pass).success(function (data, status, headers) {
+      createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
+      $scope.$root.user = data;
+      $state.go('app.home');
+    })
+    .error(function (data, status, headers) {
+      console.log(data, status, headers);
+    });
+  };
+}]);
 
 app.controller('SettingsCtrl', ['$scope', '$state', 'User', 'News', function ($scope, $state, User, News) {
   if (!$scope.user) {

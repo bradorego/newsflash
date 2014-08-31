@@ -16,15 +16,22 @@ block content
           ul.list
             a.item.item-icon-left(href="#/app/home", menu-close)
               i.icon.ion-home
-              span &nbsp;Home
+              span Home
             a.item.item-icon-left(href="#/app/settings", menu-close)
               i.icon.ion-gear-b
-              span &nbsp;Settings
+              span Settings
+            a.item.item-dark.item-icon-left(href='#/', menu-close='menu-close', ng-click='signOut()')
+              i.icon.ion-log-out
+              span Log Out
       ion-side-menu(side="right")
         ion-content
           ion-header-bar.bar-balanced
             h1.title Yes List
-          ul.list.has-header
+          .list.has-header(ng-hide="accepted.length > 0 || user.liked.length > 0")
+            .item
+              h2 No saved stories
+              p Stories you save will show up here
+          ul.list.has-header(ng-show="accepted.length || user.liked.length")
             a.item(ng-repeat="story in accepted", href="{{story.link}}", target="_blank", menu-close)
               h2 {{story.title}}
               p {{story.date}} - {{story.source}}
@@ -32,11 +39,17 @@ block content
             a.item(ng-repeat="story in user.liked", href="{{story.link}}", target="_blank", menu-close)
               h2 {{story.title}}
               p {{story.date}} - {{story.source}}
+        ion-footer-bar.bar-positive(ng-show="accepted.length")
+          .button-bar
+            button.button.button-clear(ng-click="exportStories()") Export Recent Stories
   script(id='home.html', type="text/ng-template")
     ion-view(title='Home')
     ion-content(padding='true', scroll='false')
       pane(ng-controller='CardsCtrl')
-        .ion-loading-c.nfLoading(ng-hide="cards")
+        .ion-loading-c.nfLoading(ng-show="loading")
+        .centered(ng-show="!loading && !cards.length")
+          h2 Looks a little empty...
+          a.button.button-positive.button-outline.icon-right.ion-chevron-right(href="#/app/settings") Go add more!
         swipe-cards
           swipe-card(ng-repeat='card in cards', on-destroy='cardDestroyed($index)', on-swipe='cardSwiped($index)')
             div(ng-controller='CardCtrl')
@@ -61,10 +74,7 @@ block content
           form.form(ng-submit='addFeed(newFeed)')
             li.item
               input(type='url', placeholder='Enter new feed URL', ng-model='newFeed')
-              button.button.button-block.button-positive Submit
-        a.item.item-dark.item-icon-left(href='#/', menu-close='menu-close', ng-click='signOut()')
-          i.icon.ion-log-out
-          span Log Out
+              button.button.button-block.button-positive.icon-right.ion-plus Add
   script(id='login.html', type="text/ng-template")
     ion-view
       ion-header-bar.bar-positive(align-title='center')
@@ -73,11 +83,28 @@ block content
           h4 Please enter email and password to continue
           form.list.list-inset(name='signInForm', ng-submit='signIn(user)')
             label.item.item-input
-              span.input-label.col.col-33 Email
+              span.input-label Email
               input(type='text', required='required', ng-model='user.email', placeholder='test@example.com')
             label.item.item-input
-              span.input-label.col.col-33 Password
+              span.input-label Password
               input(type='password', required='required', ng-model='user.pass', placeholder='Password')
             button.button.button-block.button-positive(type='submit', ng-disabled='signInForm.$invalid') Log In
+            a.button.button-block.button-positive.button-outline(href='#/signUp') Create an account
             a#loginHelp.item(href='mailto:newsflashnewsapp@gmail.com?subject=Help!') Need Help?
+          i.ion-home.preload
+  script(id='signUp.html', type="text/ng-template")
+    ion-view
+      ion-header-bar.bar-positive(align-title='center')
+          h1.title NewsFlash
+        ion-content.has-header(padding='true')
+          h4 Please enter email and password to register
+          form.list.list-inset(name='signUpForm', ng-submit='signUp(user)')
+            label.item.item-input
+              span.input-label Email
+              input(type='text', required='required', ng-model='user.email', placeholder='test@example.com')
+            label.item.item-input
+              span.input-label Password
+              input(type='password', required='required', ng-model='user.pass', placeholder='Anything goes!')
+            button.button.button-block.button-positive(type='submit', ng-disabled='signUpForm.$invalid') Sign Up
+            a.button.button-block.button-positive.button-outline(href='#/login') Already have an account?
           i.ion-home.preload

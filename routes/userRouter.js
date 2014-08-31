@@ -109,42 +109,46 @@ userRouter.route('/:id/stories')
         currentImage = "",
         stories = [],
         alreadySeen = {};
-      for (i = 0; i < user.RSS_feeds.length; i++) {
-        request({
-          'url': 'http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=20&q=' + user.RSS_feeds[i],
-          'method': 'GET',
-          'json': true,
-          'gzip': true
-        }, function (error, response, body) {
-          count++;
-          currentSource = body.responseData.feed.title;
-          for (j = 0; j < body.responseData.feed.entries.length; j++) {
-            currentStory = body.responseData.feed.entries[j];
-            currentImage = '';
-            if (currentStory.mediaGroups && currentStory.mediaGroups[0].contents && currentStory.mediaGroups[0].contents[0].thumbnails) {
-              currentImage = currentStory.mediaGroups[0].contents[0].thumbnails[0].url;
-            }
-            alreadySeen = user.seen.some(function (el) {
-              if ((el.title === currentStory.title) && (el.source === currentSource)) {
-                return true;
+      if (user.RSS_feeds.length) {
+        for (i = 0; i < user.RSS_feeds.length; i++) {
+          request({
+            'url': 'http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=20&q=' + user.RSS_feeds[i],
+            'method': 'GET',
+            'json': true,
+            'gzip': true
+          }, function (error, response, body) {
+            count++;
+            currentSource = body.responseData.feed.title;
+            for (j = 0; j < body.responseData.feed.entries.length; j++) {
+              currentStory = body.responseData.feed.entries[j];
+              currentImage = '';
+              if (currentStory.mediaGroups && currentStory.mediaGroups[0].contents && currentStory.mediaGroups[0].contents[0].thumbnails) {
+                currentImage = currentStory.mediaGroups[0].contents[0].thumbnails[0].url;
               }
-            });
-            if (!alreadySeen) {
-              stories.push({
-                'title': currentStory.title,
-                'link': currentStory.link,
-                'image': currentImage,
-                'summary': currentStory.contentSnippet,
-                'date': new Date(currentStory.publishedDate).toDateString(),
-                'source': currentSource
+              alreadySeen = user.seen.some(function (el) {
+                if ((el.title === currentStory.title) && (el.source === currentSource)) {
+                  return true;
+                }
               });
+              if (!alreadySeen) {
+                stories.push({
+                  'title': currentStory.title,
+                  'link': currentStory.link,
+                  'image': currentImage,
+                  'summary': currentStory.contentSnippet,
+                  'date': new Date(currentStory.publishedDate).toDateString(),
+                  'source': currentSource
+                });
+              }
             }
-          }
-          if (count === user.RSS_feeds.length) { // done!
-            stories = stories.sort(function (a,b) {return 0.5 - Math.random();}); // randomize!
-            res.json(stories);
-          }
-        });
+            if (count === user.RSS_feeds.length) { // done!
+              stories = stories.sort(function (a,b) {return 0.5 - Math.random();}); // randomize!
+              res.json(stories);
+            }
+          });
+        }
+      } else {
+        res.json();
       }
     });
   });

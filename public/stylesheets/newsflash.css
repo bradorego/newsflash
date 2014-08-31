@@ -30,6 +30,10 @@
 .preload {
   font-size: 1px;
 }
+.centered {
+  text-align: center;
+  position: relative;
+}
 
 /*********** from swipecards ********/
 /* Your app's CSS, go crazy, make it your own */
