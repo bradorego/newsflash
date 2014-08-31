@@ -289,10 +289,10 @@ app.controller('HomeCtrl', ['$scope', function ($scope) {
 
 app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scope, $state, User, News) {
   $scope.signOut();
-  $scope.user = {
-    'email':"bradley.orego+nf5@gmail.com",
-    'pass':"TestWord"
-  };
+  // $scope.user = {
+  //   'email':"bradley.orego+nf5@gmail.com",
+  //   'pass':"TestWord"
+  // };
   $scope.signIn = function (user) {
     User.signIn(user.email, user.pass).success(function (data, status, headers) {
       createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
