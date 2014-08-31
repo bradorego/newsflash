@@ -103,12 +103,12 @@ userRouter.route('/:id/stories')
     UserModel.findById(req.body._id, function (err, user) {
       var i = 0,
         j = 0,
-        k = 0,
         count = 0,
         currentStory = {},
         currentSource = "",
         currentImage = "",
-        stories = [];
+        stories = [],
+        alreadySeen = {};
       for (i = 0; i < user.RSS_feeds.length; i++) {
         request({
           'url': 'http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=20&q=' + user.RSS_feeds[i],
@@ -124,20 +124,23 @@ userRouter.route('/:id/stories')
             if (currentStory.mediaGroups && currentStory.mediaGroups[0].contents && currentStory.mediaGroups[0].contents[0].thumbnails) {
               currentImage = currentStory.mediaGroups[0].contents[0].thumbnails[0].url;
             }
-            stories.push({
-              'title': currentStory.title,
-              'link': currentStory.link,
-              'image': currentImage,
-              'summary': currentStory.contentSnippet,
-              'date': new Date(currentStory.publishedDate).toDateString(),
-              'source': currentSource
+            alreadySeen = user.seen.some(function (el) {
+              if ((el.title === currentStory.title) && (el.source === currentSource)) {
+                return true;
+              }
             });
+            if (!alreadySeen) {
+              stories.push({
+                'title': currentStory.title,
+                'link': currentStory.link,
+                'image': currentImage,
+                'summary': currentStory.contentSnippet,
+                'date': new Date(currentStory.publishedDate).toDateString(),
+                'source': currentSource
+              });
+            }
           }
           if (count === user.RSS_feeds.length) { // done!
-            /// TODO filter out stories they've seen?
-            // for (k = 0; k < stories.length; k++) {
-            ////// compare stories to seen, if title and source the same, remove it from stories
-            // }
             stories = stories.sort(function (a,b) {return 0.5 - Math.random();}); // randomize!
             res.json(stories);
           }
