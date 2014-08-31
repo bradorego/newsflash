@@ -129,18 +129,14 @@ app.service('User', ['$http', function ($http) {
       return $http({
         'method': 'post',
         'url': '/api/v1/users/' + user._id + '/liked',
-        'data': {
-          'card': card
-        }
+        'data': card
       });
     },
     cardPassed = function (user, card) {
       return $http({
         'method': 'post',
         'url': '/api/v1/users/' + user._id + '/disliked',
-        'data': {
-          'card': card
-        }
+        'data': card
       });
     },
     addFeed = function (user, feed) {
@@ -220,10 +216,10 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
   $scope.cardDestroyed = function(index) {
     if (this.swipeCard.positive === true) { /// trigger positive result
       $scope.$root.accepted.push($scope.previousCard);
-      User.savedStory($scope.user, $scope.previousCard).exec();
+      User.cardSaved($scope.user, $scope.previousCard).then();
     } else { /// trigger negative
       $scope.$root.rejected++;
-      User.viewedStory($scope.user, $scope.previousCard).exec();
+      User.cardPassed($scope.user, $scope.previousCard).then();
     }
     $scope.cards.splice(index, 1);
   };
@@ -287,7 +283,7 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
 }]);
 
 
-app.controller('SettingsCtrl', ['$scope', '$state', 'User', function ($scope, $state, User) {
+app.controller('SettingsCtrl', ['$scope', '$state', 'User', 'News', function ($scope, $state, User, News) {
   if (!$scope.user) {
     $state.go('login');
     return;
@@ -295,12 +291,22 @@ app.controller('SettingsCtrl', ['$scope', '$state', 'User', function ($scope, $s
   $scope.feeds = $scope.user.RSS_feeds;
   $scope.addFeed = function (url) {
     User.addFeed($scope.user, url).success(function (data, status, headers) {
+      News.init($scope.user).success(function (data, status, headers) {
+        $scope.$root.storyList = data;
+        $scope.$root.activeCard = $scope.storyList[0];
+        $scope.cards = Array.prototype.slice.call(News.data(), 0, 1)
+      });
       $scope.feeds.push(url);
       $scope.newFeed = '';
     });
   };
   $scope.removeFeed = function (feed) {
     User.removeFeed($scope.user, feed).success(function (data, status, headers) {
+      News.init($scope.user).success(function (data, status, headers) {
+        $scope.$root.storyList = data;
+        $scope.$root.activeCard = $scope.storyList[0];
+        $scope.cards = Array.prototype.slice.call(News.data(), 0, 1)
+      });
       for (var i = 0 ; i < $scope.feeds.length; i++) {
         if ($scope.feeds[i] === feed) {
           $scope.feeds.splice(i,1);

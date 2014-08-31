@@ -157,7 +157,6 @@ userRouter.route('/:id/liked')
     });
   })
   .post(function (req, res) {
-    console.log(req.body);
     var story = {
       'title': req.body.title,
       'link': req.body.link,

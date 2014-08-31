@@ -14,11 +14,11 @@ block content
       ion-side-menu(side="left")
         ion-content(scroll="false")
           ul.list
-            a.item(href="#/app/home", menu-close)
-              i.ion-home
+            a.item.item-icon-left(href="#/app/home", menu-close)
+              i.icon.ion-home
               span &nbsp;Home
-            a.item(href="#/app/settings", menu-close)
-              i.ion-gear-b
+            a.item.item-icon-left(href="#/app/settings", menu-close)
+              i.icon.ion-gear-b
               span &nbsp;Settings
       ion-side-menu(side="right")
         ion-content
@@ -26,10 +26,12 @@ block content
             h1.title Yes List
           ul.list.has-header
             a.item(ng-repeat="story in accepted", href="{{story.link}}", target="_blank", menu-close)
-              span {{story.title}}
+              h2 {{story.title}}
+              p {{story.date}} - {{story.source}}
             .item.item-divider Previously Saved
             a.item(ng-repeat="story in user.liked", href="{{story.link}}", target="_blank", menu-close)
-              span {{story.title}}
+              h2 {{story.title}}
+              p {{story.date}} - {{story.source}}
   script(id='home.html', type="text/ng-template")
     ion-view(title='Home')
     ion-content(padding='true', scroll='false')
