@@ -203,8 +203,8 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
   } else {
     News.init($scope.user).success(function (data, status, headers) {
       $scope.$root.storyList = data;
-      $scope.$root.activeCard = $scope.storyList[0];
-      $scope.cards = Array.prototype.slice.call(News.data(), 0, 1)
+      $scope.$root.activeCard = Array.prototype.slice.call(News.data(), 0, 1)[0];
+      $scope.cards = Array.prototype.slice.call(News.data(), 0, 1);
     });
   }
 
@@ -226,7 +226,6 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
 
   $scope.addCard = function() {
     var newCard = News.pop();
-    console.log(News.data().length);
     if ($scope.storyList.length === 0) {
       $scope.empty = true;
     }
@@ -293,8 +292,8 @@ app.controller('SettingsCtrl', ['$scope', '$state', 'User', 'News', function ($s
     User.addFeed($scope.user, url).success(function (data, status, headers) {
       News.init($scope.user).success(function (data, status, headers) {
         $scope.$root.storyList = data;
-        $scope.$root.activeCard = $scope.storyList[0];
-        $scope.cards = Array.prototype.slice.call(News.data(), 0, 1)
+        $scope.$root.activeCard = Array.prototype.slice.call(News.data(), 0, 1)[0];
+        $scope.cards = Array.prototype.slice.call(News.data(), 0, 1);
       });
       $scope.feeds.push(url);
       $scope.newFeed = '';
@@ -304,8 +303,8 @@ app.controller('SettingsCtrl', ['$scope', '$state', 'User', 'News', function ($s
     User.removeFeed($scope.user, feed).success(function (data, status, headers) {
       News.init($scope.user).success(function (data, status, headers) {
         $scope.$root.storyList = data;
-        $scope.$root.activeCard = $scope.storyList[0];
-        $scope.cards = Array.prototype.slice.call(News.data(), 0, 1)
+        $scope.$root.activeCard = Array.prototype.slice.call(News.data(), 0, 1)[0];
+        $scope.cards = Array.prototype.slice.call(News.data(), 0, 1);
       });
       for (var i = 0 ; i < $scope.feeds.length; i++) {
         if ($scope.feeds[i] === feed) {
