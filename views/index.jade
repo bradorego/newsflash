@@ -67,8 +67,8 @@ block content
     ion-view
       ion-header-bar.bar-positive(align-title='center')
           h1.title NewsFlash
-        ion-content.has-header
-          h4 Please sign in to continue
+        ion-content.has-header(padding='true')
+          h4 Please enter email and password to continue
           form.list.list-inset(name='signInForm', ng-submit='signIn(user)')
             label.item.item-input
               span.input-label.col.col-33 Email
@@ -76,10 +76,6 @@ block content
             label.item.item-input
               span.input-label.col.col-33 Password
               input(type='password', required='required', ng-model='user.pass', placeholder='Password')
-            .padding
-              button.button.button-block.button-positive(type='submit', ng-disabled='signInForm.$invalid') Log In
+            button.button.button-block.button-positive(type='submit', ng-disabled='signInForm.$invalid') Log In
             a#loginHelp.item(href='mailto:newsflashnewsapp@gmail.com?subject=Help!') Need Help?
           i.ion-home.preload
-
-
-
