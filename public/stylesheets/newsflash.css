@@ -34,6 +34,9 @@
   text-align: center;
   position: relative;
 }
+.error {
+  color: red;
+}
 
 /*********** from swipecards ********/
 /* Your app's CSS, go crazy, make it your own */

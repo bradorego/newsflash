@@ -34,22 +34,27 @@ userRouter.route('/')
     var ts = +new Date();
     UserModel.findOne({'email': req.body.email}, function (err, user) {
       if (err) {
+        res.status(500);
         res.end(err);
-      } else if (user && (user.password === crypto.createHash('sha1').update(req.body.password).digest('hex'))) {
-        UserModel.update({'_id':req.body._id}, {'lastSignIn': ts, '$inc': {'signInCount': 1}}, function (err, numAffected, raw) {
-          if (err) {
-            res.send(err);
-          } else {
-            user.lastSignIn = ts;
-            user.signInCount = user.signInCount + 1;
-            res.json(user);
-          }
-        });
       } else {
-        var err = new Error('Invalid auth');
-        err.status = 401;
-        err.message = 'Invalid auth';
-        res.send(err);
+        if (!user) {
+          res.status(401);
+          res.send({'status':401,'message':'Email not found'});
+        } else if (user.password !== crypto.createHash('sha1').update(req.body.password).digest('hex')) {
+          res.status(401);
+          res.send({'status':401,'message':'Incorrect password'});
+        } else {
+          UserModel.update({'_id':req.body._id}, {'lastSignIn': ts, '$inc': {'signInCount': 1}}, function (err, numAffected, raw) {
+            if (err) {
+              res.status(500);
+              res.send(err);
+            } else {
+              user.lastSignIn = ts;
+              user.signInCount = user.signInCount + 1;
+              res.json(user);
+            }
+          });
+        }
       }
     });
   })

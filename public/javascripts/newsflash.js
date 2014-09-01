@@ -295,12 +295,18 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
   // };
   $scope.signIn = function (user) {
     User.signIn(user.email, user.pass).success(function (data, status, headers) {
-      createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
-      $scope.$root.user = data;
-      $state.go('app.home');
+      if (data._id) {
+        $scope.error = '';
+        createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
+        $scope.$root.user = data;
+        $state.go('app.home');
+      } else {
+        $scope.error = "Log in failed"
+      }
     })
     .error(function (data, status, headers) {
-      console.log(data, status, headers);
+      $scope.error = data.message;
+      console.log(data, status, headers());
     });
   };
 }]);

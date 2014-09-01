@@ -24,6 +24,7 @@ app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 var crypto = require('crypto');
+var UserModel = require('./models/user');
 
 app.use(function (req, res, next) {
   console.log(req.url);
@@ -86,10 +87,6 @@ app.use(function(err, req, res, next) {
 //////////////////////
 app.mongoose = require('mongoose');
 app.mongoose.connect('mongodb://node:node@ds053198.mongolab.com:53198/nf_main');
-
-var UserModel = require('./models/user');
-
-// console.log(UserModel);
 
 app.set('port', process.env.PORT || 8010);
 

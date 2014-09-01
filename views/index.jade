@@ -49,7 +49,7 @@ block content
         .ion-loading-c.nfLoading(ng-show="loading")
         .centered(ng-show="!loading && !cards.length")
           h2 Looks a little empty...
-          a.button.button-positive.button-outline.icon-right.ion-chevron-right(href="#/app/settings") Go add more!
+          a.button.button-positive.button-outline.icon-right.ion-chevron-right(href="#/app/settings") Add Feeds
         swipe-cards
           swipe-card(ng-repeat='card in cards', on-destroy='cardDestroyed($index)', on-swipe='cardSwiped($index)')
             div(ng-controller='CardCtrl')
@@ -80,6 +80,8 @@ block content
       ion-header-bar.bar-positive(align-title='center')
           h1.title NewsFlash
         ion-content.has-header(padding='true')
+          .centered(ng-show='error')
+            h4.error {{error}}
           form.list.list-inset(name='signInForm', ng-submit='signIn(user)')
             label.item.item-input
               span.input-label Email
