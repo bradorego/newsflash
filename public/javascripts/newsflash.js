@@ -276,6 +276,13 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
   };
 });
 
+app.controller('AppCtrl', ['$scope', '$state', function ($scope, $state) {
+  if (!$scope.user) {
+    $state.go('login');
+    return false;
+  }
+}]);
+
 app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scope, $state, User, News) {
   $scope.signOut();
   // $scope.user = {
