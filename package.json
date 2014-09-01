@@ -1,9 +1,11 @@
 {
   "name": "newsflash_node",
   "version": "0.0.1",
-  "private": true,
   "scripts": {
     "start": "./node_modules/.bin/supervisor app.js"
+  },
+  "engines": {
+    "node":"0.10.x"
   },
   "dependencies": {
     "supervisor": "*",
