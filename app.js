@@ -1,3 +1,7 @@
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
 var express = require('express');
 var path = require('path');
 var favicon = require('static-favicon');
@@ -22,19 +26,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 var crypto = require('crypto');
 
 app.use(function (req, res, next) {
-  if (req.cookies.nf_auth) {
-    var auth = new Buffer(req.cookies.nf_auth, 'base64').toString('ascii').split(':');
-    UserModel.findOne({'email': auth[0]}, function (err, user) {
-      if (user.password === crypto.createHash('sha1').update(auth[1]).digest('hex')) {
-        req.body._id = user._id;
-        next();
-      } else {
-        var err = new Error('Invalid auth');
-        err.status = 401;
-        err.message = 'Invalid auth';
-        next(err);
-      }
-    });
+  console.log(req.url);
+  if(!req.url.endsWith('css') && !req.url.endsWith('js') && !req.url.endsWith('png') && !req.url.endsWith('ico')) {
+    if (req.cookies.nf_auth) {
+      var auth = new Buffer(req.cookies.nf_auth, 'base64').toString('ascii').split(':');
+      UserModel.findOne({'email': auth[0]}, function (err, user) {
+        if (user.password === crypto.createHash('sha1').update(auth[1]).digest('hex')) {
+          req.body._id = user._id;
+          next();
+        } else {
+          var err = new Error('Invalid auth');
+          err.status = 401;
+          err.message = 'Invalid auth';
+          next(err);
+        }
+      });
+    } else {
+      next();
+    }
   } else {
     next();
   }

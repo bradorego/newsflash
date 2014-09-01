@@ -118,27 +118,29 @@ userRouter.route('/:id/stories')
             'gzip': true
           }, function (error, response, body) {
             count++;
-            currentSource = body.responseData.feed.title;
-            for (j = 0; j < body.responseData.feed.entries.length; j++) {
-              currentStory = body.responseData.feed.entries[j];
-              currentImage = '';
-              if (currentStory.mediaGroups && currentStory.mediaGroups[0].contents && currentStory.mediaGroups[0].contents[0].thumbnails) {
-                currentImage = currentStory.mediaGroups[0].contents[0].thumbnails[0].url;
-              }
-              alreadySeen = user.seen.some(function (el) {
-                if ((el.title === currentStory.title) && (el.source === currentSource)) {
-                  return true;
+            if (body.responseStatus === 200) {
+              currentSource = body.responseData.feed.title;
+              for (j = 0; j < body.responseData.feed.entries.length; j++) {
+                currentStory = body.responseData.feed.entries[j];
+                currentImage = '';
+                if (currentStory.mediaGroups && currentStory.mediaGroups[0].contents && currentStory.mediaGroups[0].contents[0].thumbnails) {
+                  currentImage = currentStory.mediaGroups[0].contents[0].thumbnails[0].url;
                 }
-              });
-              if (!alreadySeen) {
-                stories.push({
-                  'title': currentStory.title,
-                  'link': currentStory.link,
-                  'image': currentImage,
-                  'summary': currentStory.contentSnippet,
-                  'date': new Date(currentStory.publishedDate).toDateString(),
-                  'source': currentSource
+                alreadySeen = user.seen.some(function (el) {
+                  if ((el.title === currentStory.title) && (el.source === currentSource)) {
+                    return true;
+                  }
                 });
+                if (!alreadySeen) {
+                  stories.push({
+                    'title': currentStory.title,
+                    'link': currentStory.link,
+                    'image': currentImage,
+                    'summary': currentStory.contentSnippet,
+                    'date': new Date(currentStory.publishedDate).toDateString(),
+                    'source': currentSource
+                  });
+                }
               }
             }
             if (count === user.RSS_feeds.length) { // done!
