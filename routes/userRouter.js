@@ -105,6 +105,7 @@ userRouter.route('/:id/feeds')
 
 userRouter.route('/:id/stories')
   .get(function (req, res) {
+    console.log(req.body);
     UserModel.findById(req.body._id, function (err, user) {
       var i = 0,
         j = 0,
