@@ -35,10 +35,11 @@ app.use(function (req, res, next) {
           req.body._id = user._id;
           next();
         } else {
-          var err = new Error('Invalid auth');
-          err.status = 401;
-          err.message = 'Invalid auth';
-          next(err);
+          // var err = new Error('Invalid auth');
+          // err.status = 401;
+          // err.message = 'Invalid auth';
+          // next(err);
+          next();
         }
       });
     } else {
