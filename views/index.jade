@@ -83,7 +83,7 @@ block content
           form.list.list-inset(name='signInForm', ng-submit='signIn(user)')
             label.item.item-input
               span.input-label Email
-              input(type='text', required='required', ng-model='user.email', placeholder='test@example.com')
+              input(type='email', required='required', ng-model='user.email', placeholder='test@example.com')
             label.item.item-input
               span.input-label Password
               input(type='password', required='required', ng-model='user.pass', placeholder='Password')
@@ -100,10 +100,10 @@ block content
           form.list.list-inset(name='signUpForm', ng-submit='signUp(user)')
             label.item.item-input
               span.input-label Email
-              input(type='text', required='required', ng-model='user.email', placeholder='test@example.com')
+              input(type='email', required='required', ng-model='user.email', placeholder='test@example.com')
             label.item.item-input
               span.input-label Password
               input(type='password', required='required', ng-model='user.pass', placeholder='Anything goes!')
             button.button.button-block.button-positive(type='submit', ng-disabled='signUpForm.$invalid') Sign Up
-            a.button.button-block.button-positive.button-outline(href='#/login') Already have an account?
+            a.button.button-block.button-positive.button-outline(href='/') Already have an account?
           i.ion-home.preload

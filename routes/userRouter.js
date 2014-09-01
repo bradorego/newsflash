@@ -16,7 +16,7 @@ userRouter.route('/')
   })
   .post(function (req, res) {
     var user = new UserModel({
-      'email': req.body.email,
+      'email': req.body.email.toLowerCase(),
       'password': crypto.createHash('sha1').update(req.body.password).digest('hex'),
       'lastSignIn': +new Date(),
       'signInCount': 0
