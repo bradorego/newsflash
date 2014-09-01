@@ -28,7 +28,8 @@
 	color: #cf0000;
 }
 .preload {
-  font-size: 1px;
+  font-size: 0.5px;
+  color: transparent;
 }
 .centered {
   text-align: center;
