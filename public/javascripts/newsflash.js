@@ -129,7 +129,7 @@ app.service('User', ['$http', function ($http) {
         'method': 'put',
         'url': '/api/v1/users',
         'data': {
-          'email': email,
+          'email': email.toLowerCase(),
           'password': password
         }
       });
@@ -171,7 +171,7 @@ app.service('User', ['$http', function ($http) {
         'method': 'post',
         'url': '/api/v1/users',
         'data': {
-          'email': email,
+          'email': email.toLowerCase(),
           'password': password
         }
       });
