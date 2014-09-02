@@ -202,6 +202,9 @@ app.run(function ($rootScope, $state, $window, News) {
   $rootScope.accepted = [];
   $rootScope.previousCard = {};
   $rootScope.signOut = function() {
+    if (ga && $rootScope.user) {
+      ga('send', 'event', 'user', 'signedOut', '', $rootScope.user._id);
+    }
     $rootScope.user = null;
     News.clear();
     $rootScope.accepted = [];
@@ -215,6 +218,9 @@ app.run(function ($rootScope, $state, $window, News) {
     for (i = 0; i < $rootScope.accepted.length; i++) {
       body += $rootScope.accepted[i].title + ' - ' + $rootScope.accepted[i].link + '\n';
     }
+    if (ga) {
+        ga('send', 'event', 'story', 'exported');
+      }
     $window.location = URL + body;
   }
 });
@@ -247,9 +253,15 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
 
   $scope.cardDestroyed = function(index) {
     if (this.swipeCard.positive === true) { /// trigger positive result
+      if (ga) {
+        ga('send', 'event', 'story', 'saved');
+      }
       $scope.$root.accepted.push($scope.previousCard);
       User.cardSaved($scope.user, $scope.previousCard).then();
     } else { /// trigger negative
+      if (ga) {
+        ga('send', 'event', 'story', 'passed');
+      }
       User.cardPassed($scope.user, $scope.previousCard).then();
     }
     $scope.cards.splice(index, 1);
@@ -284,6 +296,11 @@ app.controller('AppCtrl', ['$scope', '$state', function ($scope, $state) {
 }]);
 
 app.controller('HomeCtrl', ['$scope', function ($scope) {
+  if (ga) {
+    ga('send','screenview', {
+      'screenName': 'Home'
+    });
+  }
   ///// TODO ??????
 }]);
 
@@ -293,12 +310,20 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
   //   'email':"bradley.orego+nf5@gmail.com",
   //   'pass':"TestWord"
   // };
+  if (ga) {
+    ga('send','screenview', {
+      'screenName': 'Login'
+    });
+  }
   $scope.signIn = function (user) {
     User.signIn(user.email, user.pass).success(function (data, status, headers) {
       if (data._id) {
         $scope.error = '';
         createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
         $scope.$root.user = data;
+        if (ga) {
+          ga('send', 'event', 'user', 'signedIn', '', data._id);
+        }
         $state.go('app.home');
       } else {
         $scope.error = "Log in failed"
@@ -312,13 +337,27 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
 }]);
 
 app.controller('SignUpCtrl', ['$scope', '$state', 'User', 'News', function ($scope, $state, User, News) {
+  if (ga) {
+    ga('send','screenview', {
+      'screenName': 'SignUp'
+    });
+  }
   $scope.signUp = function (user) {
     User.signUp(user.email, user.pass).success(function (data, status, headers) {
-      createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
-      $scope.$root.user = data;
-      $state.go('app.home');
+      if (data._id) {
+        $scope.error = '';
+        createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
+        $scope.$root.user = data;
+        if (ga) {
+          ga('send', 'event', 'user', 'signedUp', '', data._id);
+        }
+        $state.go('app.home');
+      } else {
+        $scope.error = 'Unknown error occurred';
+      }
     })
     .error(function (data, status, headers) {
+      $scope.error = data;
       console.log(data, status, headers);
     });
   };
@@ -328,6 +367,11 @@ app.controller('SettingsCtrl', ['$scope', '$state', 'User', 'News', function ($s
   if (!$scope.user) {
     $state.go('login');
     return;
+  }
+  if (ga) {
+    ga('send','screenview', {
+      'screenName': 'Settings'
+    });
   }
   $scope.feeds = $scope.user.RSS_feeds;
   $scope.addFeed = function (url) {
@@ -339,6 +383,9 @@ app.controller('SettingsCtrl', ['$scope', '$state', 'User', 'News', function ($s
       });
       $scope.feeds.push(url);
       $scope.newFeed = '';
+      if (ga) {
+        ga('send', 'event', 'feed', 'added', '', url);
+      }
     });
   };
   $scope.removeFeed = function (feed) {
@@ -348,6 +395,9 @@ app.controller('SettingsCtrl', ['$scope', '$state', 'User', 'News', function ($s
         $scope.$root.activeCard = Array.prototype.slice.call(News.data(), 0, 1)[0];
         $scope.cards = Array.prototype.slice.call(News.data(), 0, 1);
       });
+      if (ga) {
+        ga('send', 'event', 'feed', 'removed', '', feed);
+      }
       for (var i = 0 ; i < $scope.feeds.length; i++) {
         if ($scope.feeds[i] === feed) {
           $scope.feeds.splice(i,1);

@@ -99,6 +99,8 @@ block content
           h1.title NewsFlash
         ion-content.has-header(padding='true')
           h4 Please enter email and password to register
+          .centered(ng-show='error')
+            h4.error {{error}}
           form.list.list-inset(name='signUpForm', ng-submit='signUp(user)')
             label.item.item-input
               span.input-label Email
@@ -108,3 +110,11 @@ block content
               input(type='password', required='required', ng-model='user.pass', placeholder='Anything goes!')
             button.button.button-block.button-balanced(type='submit', ng-disabled='signUpForm.$invalid') Sign Up
             a.button.button-block.button-balanced.button-outline(href='/') Already have an account?
+  script.
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-54399738-1', 'auto');
+    ga('send', 'pageview');
