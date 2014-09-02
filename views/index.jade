@@ -5,7 +5,7 @@ block content
   script(id='layout.html', type='text/ng-template')
     ion-side-menus
       ion-side-menu-content(drag-content="false")
-        ion-nav-bar.bar-positive
+        ion-nav-bar.bar-balanced
           ion-nav-buttons(side="left")
             button.button.button-icon.button-clear.ion-navicon-round(menu-toggle="left")
           ion-nav-buttons(side="right")
@@ -14,18 +14,18 @@ block content
       ion-side-menu(side="left")
         ion-content(scroll="false")
           ul.list
-            a.item.item-icon-left(href="#/app/home", menu-close)
+            a.item.item-icon-left.balanced(href="#/app/home", menu-close)
               i.icon.ion-home
               span Home
-            a.item.item-icon-left(href="#/app/settings", menu-close)
+            a.item.item-icon-left.balanced(href="#/app/settings", menu-close)
               i.icon.ion-gear-b
               span Settings
             a.item.item-dark.item-icon-left(href='#/', menu-close='menu-close', ng-click='signOut()')
-              i.icon.ion-log-out
-              span Log Out
+              i.icon.ion-log-out.energized
+              span.energized Log Out
       ion-side-menu(side="right")
         ion-content
-          ion-header-bar.bar-balanced
+          ion-header-bar.bar-energized
             h1.title Yes List
           .list.has-header(ng-hide="accepted.length > 0 || user.liked.length > 0")
             .item
@@ -39,7 +39,7 @@ block content
             a.item(ng-repeat="story in user.liked", href="{{story.link}}", target="_blank", menu-close)
               h2 {{story.title}}
               p {{story.date}} - {{story.source}}
-        ion-footer-bar.bar-positive(ng-show="accepted.length")
+        ion-footer-bar.bar-balanced(ng-show="accepted.length")
           .button-bar
             button.button.button-clear(ng-click="exportStories()") Export Recent Stories
   script(id='home.html', type="text/ng-template")
@@ -49,7 +49,7 @@ block content
         .ion-loading-c.nfLoading(ng-show="loading")
         .centered(ng-show="!loading && !cards.length")
           h2 Looks a little empty...
-          a.button.button-positive.button-outline.icon-right.ion-chevron-right(href="#/app/settings") Add Feeds
+          a.button.button-balanced.button-outline.icon-right.ion-chevron-right(href="#/app/settings") Add Feeds
         swipe-cards
           swipe-card(ng-repeat='card in cards', on-destroy='cardDestroyed($index)', on-swipe='cardSwiped($index)')
             div(ng-controller='CardCtrl')
@@ -60,8 +60,8 @@ block content
               .image
                 img(ng-src='{{card.image | filter: \'html\'}}')
               .summary(ng-bind-html="card.summary")
-              .button-bar.bar-positive
-                button.button.icon-left.ion-ios7-trash(ng-click='reject()', style="margin-right:1px;") Skip
+              .button-bar.bar-balanced
+                button.button.icon-left.ion-ios7-trash.button-dark(ng-click='reject()', style="margin-right:1px;") Skip
                 button.button.icon-left.ion-bookmark(ng-click='accept()') Save
   script(id='settings.html', type="text/ng-template")
     ion-view(title='Settings')
@@ -74,10 +74,10 @@ block content
           form.form(ng-submit='addFeed(newFeed)')
             li.item
               input(type='url', placeholder='Enter new feed URL', ng-model='newFeed')
-              button.button.button-block.button-positive.icon-right.ion-plus Add
+              button.button.button-block.button-energized.icon-right.ion-plus Add
   script(id='login.html', type="text/ng-template")
     ion-view
-      ion-header-bar.bar-positive(align-title='center')
+      ion-header-bar.bar-balanced(align-title='center')
           h1.title NewsFlash
         ion-content.has-header(padding='true')
           .centered(ng-show='error')
@@ -89,13 +89,13 @@ block content
             label.item.item-input
               span.input-label Password
               input(type='password', required='required', ng-model='user.pass', placeholder='Password')
-            button.button.button-block.button-positive(type='submit', ng-disabled='signInForm.$invalid') Log In
-            a.button.button-block.button-positive.button-outline(href='#/signUp') Create an account
+            button.button.button-block.button-balanced(type='submit', ng-disabled='signInForm.$invalid') Log In
+            a.button.button-block.button-balanced.button-outline(href='#/signUp') Create an account
             a#loginHelp.item(href='mailto:newsflashnewsapp@gmail.com?subject=Help!') Need Help?
           i.ion-home.preload
   script(id='signUp.html', type="text/ng-template")
     ion-view
-      ion-header-bar.bar-positive(align-title='center')
+      ion-header-bar.bar-balanced(align-title='center')
           h1.title NewsFlash
         ion-content.has-header(padding='true')
           h4 Please enter email and password to register
@@ -106,5 +106,5 @@ block content
             label.item.item-input
               span.input-label Password
               input(type='password', required='required', ng-model='user.pass', placeholder='Anything goes!')
-            button.button.button-block.button-positive(type='submit', ng-disabled='signUpForm.$invalid') Sign Up
-            a.button.button-block.button-positive.button-outline(href='/') Already have an account?
+            button.button.button-block.button-balanced(type='submit', ng-disabled='signUpForm.$invalid') Sign Up
+            a.button.button-block.button-balanced.button-outline(href='/') Already have an account?
