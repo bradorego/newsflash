@@ -198,9 +198,24 @@ app.service('User', ['$http', function ($http) {
   }
 }]);
 
-app.run(function ($rootScope, $state, $window, News) {
+app.run(function ($rootScope, $state, $window, News, User) {
   $rootScope.accepted = [];
   $rootScope.previousCard = {};
+  $rootScope.cookieName = 'nf_auth';
+  var cookie = readCookie($rootScope.cookieName)
+  if (cookie) {
+    cookie = atob(cookie).split(':');
+    User.signIn(cookie[0], cookie[1]).success(function (data, status, headers) {
+      if (data._id) {
+        createCookie($rootScope.cookieName, btoa(cookie[0] + ":" + cookie[1]), 30);
+        $rootScope.user = data;
+        if (ga) {
+          ga('send', 'event', 'user', 'signedIn', '', data._id);
+        }
+        $state.go('app.home');
+      }
+    });
+  }
   $rootScope.signOut = function() {
     if (ga && $rootScope.user) {
       ga('send', 'event', 'user', 'signedOut', '', $rootScope.user._id);
@@ -208,7 +223,7 @@ app.run(function ($rootScope, $state, $window, News) {
     $rootScope.user = null;
     News.clear();
     $rootScope.accepted = [];
-    deleteCookie('nf_auth');
+    deleteCookie($rootScope.cookieName);
     $state.go('login');
   }
   $rootScope.exportStories = function() {
@@ -219,8 +234,8 @@ app.run(function ($rootScope, $state, $window, News) {
       body += $rootScope.accepted[i].title + ' - ' + $rootScope.accepted[i].link + '\n';
     }
     if (ga) {
-        ga('send', 'event', 'story', 'exported');
-      }
+      ga('send', 'event', 'story', 'exported');
+    }
     $window.location = URL + body;
   }
 });
@@ -319,7 +334,7 @@ app.controller('LoginCtrl', ['$scope', '$state', 'User', 'News', function ($scop
     User.signIn(user.email, user.pass).success(function (data, status, headers) {
       if (data._id) {
         $scope.error = '';
-        createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
+        createCookie($scope.cookieName, btoa(user.email + ":" + user.pass), 30);
         $scope.$root.user = data;
         if (ga) {
           ga('send', 'event', 'user', 'signedIn', '', data._id);
@@ -346,7 +361,7 @@ app.controller('SignUpCtrl', ['$scope', '$state', 'User', 'News', function ($sco
     User.signUp(user.email, user.pass).success(function (data, status, headers) {
       if (data._id) {
         $scope.error = '';
-        createCookie('nf_auth', btoa(user.email + ":" + user.pass), 30);
+        createCookie($scope.cookieName, btoa(user.email + ":" + user.pass), 30);
         $scope.$root.user = data;
         if (ga) {
           ga('send', 'event', 'user', 'signedUp', '', data._id);
