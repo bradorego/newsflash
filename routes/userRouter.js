@@ -113,7 +113,7 @@ userRouter.route('/:id/stories')
         currentSource = "",
         currentImage = "",
         stories = [],
-        alreadySeen = {};
+        alreadySeen = false;
       if (user.RSS_feeds.length) {
         for (i = 0; i < user.RSS_feeds.length; i++) {
           request({
@@ -131,7 +131,7 @@ userRouter.route('/:id/stories')
                 if (currentStory.mediaGroups && currentStory.mediaGroups[0].contents && currentStory.mediaGroups[0].contents[0].thumbnails) {
                   currentImage = currentStory.mediaGroups[0].contents[0].thumbnails[0].url;
                 }
-                alreadySeen = user.seen.some(function (el) {
+                alreadySeen = !!user.seen.some(function (el) {
                   if ((el.title === currentStory.title) && (el.source === currentSource)) {
                     return true;
                   }
