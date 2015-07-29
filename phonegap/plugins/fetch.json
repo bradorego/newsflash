@@ -1,0 +1,15 @@
+{
+    "com.ionic.keyboard": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/driftyco/ionic-plugins-keyboard",
+            "subdir": "."
+        }
+    },
+    "org.apache.cordova.device": {
+        "source": {
+            "type": "local",
+            "path": "/var/folders/00/hlr_th993839tcmzs3tyxhsh0000gn/T/org.apache.cordova.device/package"
+        }
+    }
+}
