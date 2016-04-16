@@ -17,7 +17,7 @@ var router = function (app) {
 
   app.get('/test', function (req, res) {
     var newUser = new user.model({
-      email: "me@bradorego.com",
+      email: "me2@bradorego.com",
       password: "TestWord"
     });
     user.create(newUser);
@@ -25,7 +25,7 @@ var router = function (app) {
   });
 
   app.get('/test2', function (req, res) {
-    user.get({email: "me1231231@bradorego.com"}).then(function (data) {
+    user.get({email: "me@bradorego.com"}).then(function (data) {
       console.log(data);
       res.render('index', {title: data.email});
     }, function (err) {

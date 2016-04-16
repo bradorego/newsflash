@@ -113,7 +113,7 @@ app.service('User', ['$http', function ($http) {
     },
     removeFeed = function(user, feed) {
       return $http({
-        'method':'put',
+        'method':'delete',
         'url': '/api/v1/users/' + user.email + '/feeds',
         'data': {
           'url': feed

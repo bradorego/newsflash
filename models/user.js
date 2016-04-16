@@ -21,7 +21,7 @@ var firebase = require('firebase'),
     email: "",
     password: "",
     feeds: [],
-    likes: [],
+    liked: [],
     seen: [],
     recent: [],
     created: 0,
@@ -147,6 +147,7 @@ var login = function (userObj) {
     if (output.password !== encryptPassword(userObj.password)) {
       return d.reject({'status': 401, 'message': 'Incorrect password'});
     }
+    extend(output, userModel);
     output.signInCount += 1;
     output.lastSignIn = +new Date();
     update(output);
