@@ -20,7 +20,7 @@ var firebase = require('firebase'),
   userModel = {
     email: "",
     password: "",
-    feeds: [],
+    feeds: ["http://bradorego.com/index.xml"],
     liked: [],
     seen: [],
     recent: [],
@@ -59,7 +59,7 @@ var User = function (obj) {
 
   this.email = obj.email;
   this.password = encryptPassword(obj.password);
-  // this.feeds = [];
+  this.feeds = ["http://bradorego.com/index.xml"];
   // this.liked = [];
   // this.seen = [];
   // this.recent = [];
