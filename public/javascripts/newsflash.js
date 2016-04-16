@@ -86,7 +86,7 @@ app.run(function ($rootScope, $state, $window, News, User) {
     if (ga) {
       ga('send', 'event', 'story', 'exported');
     }
-    $window.location = URL + body;
+    $window.open(URL + body);
   }
 });
 

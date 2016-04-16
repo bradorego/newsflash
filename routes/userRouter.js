@@ -139,17 +139,21 @@ userRouter.route('/:id/stories')
               count++;
               if (body.responseStatus === 200) {
                 currentSource = body.responseData.feed.title;
+                // console.log(1);
                 for (j = 0; j < body.responseData.feed.entries.length; j++) {
+                  // console.log(2);
                   currentStory = body.responseData.feed.entries[j];
                   currentImage = '';
                   if (currentStory.mediaGroups && currentStory.mediaGroups[0].contents && currentStory.mediaGroups[0].contents[0].thumbnails) {
                     currentImage = currentStory.mediaGroups[0].contents[0].thumbnails[0].url;
                   }
                   alreadySeen = !!user.seen.some(function (el) {
+                    // console.log(3);
                     if ((el.title === currentStory.title) && (el.source === currentSource)) {
                       return true;
                     }
                   });
+                  // console.log(4);
                   if (!alreadySeen) {
                     stories.push({
                       title: currentStory.title,
@@ -162,6 +166,7 @@ userRouter.route('/:id/stories')
                   }
                 }
               }
+              // console.log(5);
               if (count === user.feeds.length) { // done!
                 stories = stories.sort(function (a,b) {return 0.5 - Math.random();}); // randomize!
                 res.json(stories);
@@ -201,13 +206,12 @@ userRouter.route('/:id/liked')
     // UserModel.findById(req.body._id, function (err, user) {
     UserModel.get({email: req.body.email})
       .then(function (user) {
-        console.log(user);
         if (user.liked.indexOf(story) !== -1) {
           return res.json({status: 400, message: "Story already liked"});
         }
         user.liked.push(story);
         user.seen.push(story);
-        UserModel.update(user)
+        UserModel.update(user, true) /// don't send data back
           .then(function (data) {
             res.json(user);
           }, function (err) {
@@ -233,7 +237,7 @@ userRouter.route('/:id/disliked')
           return res.json({status: 400, message: "Story already seen"});
         }
         user.seen.push(story);
-        UserModel.update(user)
+        UserModel.update(user, true) /// don't send data back
           .then(function (data) {
             res.json(user);
           }, function (err) {

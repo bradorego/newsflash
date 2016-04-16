@@ -58,8 +58,8 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
   } else {
     News.init($scope.user).success(function (data, status, headers) {
       $scope.$root.storyList = data;
-      $scope.$root.activeCard = Array.prototype.slice.call(News.data(), 0, 1)[0];
-      $scope.cards = Array.prototype.slice.call(News.data(), 0, 1);
+      $scope.$root.activeCard = Array.prototype.slice.call(data, 0, 1)[0];
+      $scope.cards = Array.prototype.slice.call(data, 0, 1);
       $scope.loading = false;
     });
   }
@@ -87,6 +87,9 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
 
   $scope.addCard = function() {
     var newCard = News.pop();
+    if (!newCard) {
+      return $scope.empty = true;
+    }
     if ($scope.storyList.length === 0) {
       $scope.empty = true;
     }

@@ -68,12 +68,30 @@ var User = function (obj) {
   this.signInCount = 0;
 };
 
-var update = function (userObj) {
+var update = function (userObj, sendData) {
   var d = $q.defer(),
     user = getUserRef(userObj);
   user.update(userObj, function (error) {
     if (error) {
       return d.reject(error);
+    }
+    if (sendData) {
+      return d.resolve(userObj);
+    }
+    return d.resolve({status: 200, message: "User updated"});
+  });
+  return d.promise;
+};
+
+var save = function (userObj) {
+  var d = $q.defer(),
+    user = getUserRef(userObj);
+  user.set(userObj, function (error) {
+    if (error) {
+      return d.reject(error);
+    }
+    if (noSendData) {
+      return d.resolve({status: 200, message: "User updated"});
     }
     return d.resolve(userObj);
   });
@@ -159,6 +177,7 @@ var login = function (userObj) {
 module.exports = {
   model: User,
   update: update,
+  save: save,
   create: create,
   delete: remove,
   login: login,

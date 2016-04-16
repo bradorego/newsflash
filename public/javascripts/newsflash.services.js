@@ -59,7 +59,7 @@ app.factory('News', ['$http', function ($http) {
       });
     },
     pop = function () {
-      return stories.pop();
+      return stories.length > 0 ? stories.pop() : false;
     };
   return {
     'init': function (user) {
