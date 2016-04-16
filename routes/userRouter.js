@@ -15,48 +15,52 @@ userRouter.route('/')
     });
   })
   .post(function (req, res) {
-    var user = new UserModel({
+    var user = new UserModel.model({
       'email': req.body.email,
-      'password': crypto.createHash('sha1').update(req.body.password).digest('hex'),
-      'lastSignIn': +new Date(),
-      'signInCount': 0
+      'password': req.body.password
     });
-
-    user.save(function (err, data) {
-      if (err) {
-        res.send(err);
-      } else {
+    UserModel.create(user)
+      .then(function (data) {
         res.json(data);
-      }
-    });
+      }, function (err) {
+        res.send(err);
+      });
   })
   .put(function (req, res) {
     var ts = +new Date();
-    UserModel.findOne({'email': req.body.email}, function (err, user) {
-      if (err) {
-        res.status(500);
-        res.end(err);
-      } else {
-        if (!user) {
-          res.status(401);
-          res.send({'status':401,'message':'Email not found'});
-        } else if (user.password !== crypto.createHash('sha1').update(req.body.password).digest('hex')) {
-          res.status(401);
-          res.send({'status':401,'message':'Incorrect password'});
-        } else {
-          UserModel.update({'_id':req.body._id}, {'lastSignIn': ts, '$inc': {'signInCount': 1}}, function (err, numAffected, raw) {
-            if (err) {
-              res.status(500);
-              res.send(err);
-            } else {
-              user.lastSignIn = ts;
-              user.signInCount = user.signInCount + 1;
-              res.json(user);
-            }
-          });
-        }
-      }
-    });
+    console.log(req.body);
+    UserModel.login({'email': req.body.email, 'password': req.body.password})
+      .then(function (data) {
+        res.json(data);
+      }, function (err) {
+        res.status(err.status);
+        res.send(err);
+      });
+    // UserModel.findOne({'email': req.body.email}, function (err, user) {
+    //   if (err) {
+    //     res.status(500);
+    //     res.end(err);
+    //   } else {
+    //     if (!user) {
+    //       res.status(401);
+    //       res.send({'status':401,'message':'Email not found'});
+    //     } else if (user.password !== crypto.createHash('sha1').update(req.body.password).digest('hex')) {
+    //       res.status(401);
+    //       res.send({'status':401,'message':'Incorrect password'});
+    //     } else {
+    //       UserModel.update({'_id':req.body._id}, {'lastSignIn': ts, '$inc': {'signInCount': 1}}, function (err, numAffected, raw) {
+    //         if (err) {
+    //           res.status(500);
+    //           res.send(err);
+    //         } else {
+    //           user.lastSignIn = ts;
+    //           user.signInCount = user.signInCount + 1;
+    //           res.json(user);
+    //         }
+    //       });
+    //     }
+    //   }
+    // });
   })
   .delete(function (req, res) {
     UserModel.find().remove().exec();

@@ -31,18 +31,16 @@ app.use(function (req, res, next) {
   if(!req.url.endsWith('css') && !req.url.endsWith('js') && !req.url.endsWith('png') && !req.url.endsWith('ico')) {
     if (req.cookies.nf_auth) {
       var auth = new Buffer(req.cookies.nf_auth, 'base64').toString('ascii').split(':');
-      UserModel.findOne({'email': auth[0]}, function (err, user) {
-        if (user && (user.password === crypto.createHash('sha1').update(auth[1]).digest('hex'))) {
-          req.body._id = user._id;
+      UserModel.login({'email': auth[0], 'password': auth[1]})
+        .then(function (user) {
+          req.body.email = user.email;
           next();
-        } else {
+        }, function (err) {
           var err = new Error('Invalid auth');
           err.status = 401;
           err.message = 'Invalid auth';
           next(err);
-          // next();
-        }
-      });
+        });
     } else {
       next();
     }
@@ -84,16 +82,10 @@ app.use(function(err, req, res, next) {
   });
 });
 
-//////////////////////
-app.mongoose = require('mongoose');
-app.mongoose.connect('mongodb://node:node@ds053198.mongolab.com:53198/nf_main');
-
 app.set('port', process.env.PORT || 8010);
 
 var server = app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + server.address().port);
 });
-
-
 
 module.exports = app;
