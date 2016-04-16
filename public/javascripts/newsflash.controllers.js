@@ -109,12 +109,49 @@ app.controller('CardsCtrl', function($scope, $ionicSwipeCardDelegate, $state, Us
   };
 });
 
-app.controller('AppCtrl', ['$scope', '$state', function ($scope, $state) {
-  if (!$scope.user) {
-    $state.go('login');
-    return false;
-  }
-}]);
+app.controller('AppCtrl', [
+  '$scope',
+  '$state',
+  '$ionicPopup',
+  'User',
+  function ($scope, $state, $ionicPopup, User) {
+    if (!$scope.user) {
+      $state.go('login');
+      return false;
+    }
+    var countAlert = function (signIns) {
+        if (signIns === 10) {
+          $ionicPopup.alert({title: "10th Sign In!", template: "You've signed in 10 times! Keep up the good work!"});
+        }
+        if (signIns === 25) {
+          $ionicPopup.alert({title: "25th Sign In!", template: "And that makes 25 sign ins! You're on a roll!"});
+        }
+        if (signIns === 50) {
+          $ionicPopup.alert({title: "50th Sign In!", template: "That's a, uh, silver anniversary? Golden? You're quite the 'flasher ;)"});
+        }
+        if (signIns === 100) {
+          $ionicPopup.alert({title: "100th Sign In!", template: "You're officially a NewsFlash Centurian! Keep it up!"});
+        }
+        if (signIns === 250) {
+          $ionicPopup.alert({title: "250th Sign In!", template: "248....249....250! Wow, it's gotta be a habit at this point!"});
+        }
+        if (signIns === 500) {
+          $ionicPopup.alert({title: "500th Sign In!", template: "You just hit 500 sign ins! Legendary!"});
+        }
+        if (signIns === 1000) {
+          $ionicPopup.alert({title: "1000th Sign In!", template: "Seriously I don't think I even use the app this much. Crazy!"});
+        }
+        if (signIns === 2000) {
+          $ionicPopup.alert({title: "2000th Sign In!", template: "Now, the question is, how long do these things go on...?"});
+        }
+      },
+      tenureAlert = function (created) {
+        var now = +new Date();
+        
+      };
+    countAlert($scope.user.signInCount);
+    tenureAlert($scope.user.created);
+  }]);
 
 app.controller('HomeCtrl', ['$scope', function ($scope) {
   if (ga) {
