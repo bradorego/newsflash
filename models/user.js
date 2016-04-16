@@ -16,8 +16,28 @@ var firebase = require('firebase'),
   crypto = require('crypto'),
   $q = require('node-promise'),
   firebaseRef = new Firebase("https://newsflashnewsapp.firebaseio.com/"),
-  usersRef = firebaseRef.child('users');
+  usersRef = firebaseRef.child('users'),
+  userModel = {
+    email: "",
+    password: "",
+    feeds: [],
+    likes: [],
+    seen: [],
+    recent: [],
+    created: 0,
+    lastSignIn: 0,
+    signInCount: 0
+  };
 
+function extend(target, source) {
+  for (var key in source) {
+    // skip loop if the property is from prototype
+    if (!source.hasOwnProperty(key)) continue;
+    if (!target[key]) {
+      target[key] = source[key];
+    }
+  }
+};
 
 var formatEmail = function (email) { /// from http://stackoverflow.com/a/14965065/1148769
   if (!email) return false;
@@ -35,12 +55,14 @@ var encryptPassword = function (password) {
 };
 
 var User = function (obj) {
+  extend(this, userModel);
+
   this.email = obj.email;
   this.password = encryptPassword(obj.password);
-  this.feeds = [];
-  this.liked = [];
-  this.seen = [];
-  this.recent = [];
+  // this.feeds = [];
+  // this.liked = [];
+  // this.seen = [];
+  // this.recent = [];
   this.created = +new Date();
   this.lastSignIn = +new Date();
   this.signInCount = 0;
@@ -103,6 +125,7 @@ var get = function (userObj) {
       snapshot.child(formatEmail(userObj.email)).forEach(function (obj) {
         output[obj.key()] = obj.val();
       });
+      extend(output, userModel);
       return d.resolve(output);
     }
     return d.reject({'status': 404, 'message': 'Email Not Found'});
