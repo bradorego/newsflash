@@ -31,7 +31,7 @@ app.use(function (req, res, next) {
   if(!req.url.endsWith('css') && !req.url.endsWith('js') && !req.url.endsWith('png') && !req.url.endsWith('ico')) {
     if (req.cookies.nf_auth) {
       var auth = new Buffer(req.cookies.nf_auth, 'base64').toString('ascii').split(':');
-      UserModel.login({'email': auth[0], 'password': auth[1]})
+      UserModel.login({'email': auth[0], 'password': auth[1], increase: false})
         .then(function (user) {
           req.body.email = user.email;
           next();

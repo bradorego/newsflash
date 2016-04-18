@@ -166,7 +166,9 @@ var login = function (userObj) {
       return d.reject({'status': 401, 'message': 'Incorrect password'});
     }
     extend(output, userModel);
-    output.signInCount += 1;
+    if (userObj.increase) {
+      output.signInCount += 1;
+    }
     output.lastSignIn = +new Date();
     update(output);
     return d.resolve(output);

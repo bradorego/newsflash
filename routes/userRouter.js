@@ -29,7 +29,7 @@ userRouter.route('/')
       });
   })
   .put(function (req, res) {
-    UserModel.login({email: req.body.email, password: req.body.password})
+    UserModel.login({email: req.body.email, password: req.body.password, increase: true})
       .then(function (data) {
         res.json(data);
       }, function (err) {
